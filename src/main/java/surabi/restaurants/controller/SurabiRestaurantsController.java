@@ -1,61 +1,54 @@
 package surabi.restaurants.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import surabi.restaurants.dto.AuditDTO;
 import surabi.restaurants.entity.Item;
-import surabi.restaurants.repository.ItemRepository;
+import surabi.restaurants.service.SurabiRestaurantService;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/surabi-restaurant")
+@AllArgsConstructor
 public class SurabiRestaurantsController {
 
-    @Autowired
-    ItemRepository itemRepository;
+    private final SurabiRestaurantService surabiRestaurantService;
 
-    @RequestMapping("/")
-    public String viewHomePage(Model model) {
-        List<Item> listItems = itemRepository.findAll();
-        model.addAttribute("listItems", listItems);
-
-        return "index";
+    @GetMapping("/view-menu")
+    public List<Item> viewMenu() {
+        return surabiRestaurantService.getAllItems();
     }
 
-    @RequestMapping("/new")
-    public String showNewItemForm(Model model) {
-        Item item = new Item();
-        model.addAttribute("item", item);
-
-        return "new_item";
+    @GetMapping("/select-menu-with-bill")
+    public String selectMenuWithBill(@RequestParam List<Integer> ids) {
+        List<Item> items = surabiRestaurantService.selectItemsWithBill(ids);
+        int totalPrice = 0;
+        for (Item item : items) {
+            totalPrice += item.getPrice();
+        }
+        return items + " selected & Final bill is ₹" + totalPrice;
     }
 
-    @PostMapping(value = "/save")
-    public String saveItem(@ModelAttribute("item") Item item) {
-        itemRepository.save(item);
-
-        return "redirect:/";
+    @GetMapping("/last-bill")
+    public String lastBill() {
+        return surabiRestaurantService.getLastBill();
     }
 
-    @RequestMapping("/edit/{id}")
-    public ModelAndView showEditItemForm(@PathVariable(name = "id") Integer id) {
-        ModelAndView mav = new ModelAndView("edit_item");
-
-        Item item = itemRepository.findById(id).orElse(null);
-        mav.addObject("item", item);
-
-        return mav;
+    @PostMapping("/add-log-to-audit")
+    @ApiOperation(value = "", hidden = true)
+    public String addLogToAudit(AuditDTO auditDTO) {
+        return surabiRestaurantService.addLogToAudit(auditDTO);
     }
 
-    @RequestMapping("/delete/{id}")
-    public String deleteItem(@PathVariable(name = "id") Integer id) {
-        itemRepository.deleteById(id);
+    @GetMapping("/last-one-day-bill")
+    public String lastOneDayBill() {
+        return surabiRestaurantService.getLastOneDayBill();
+    }
 
-        return "redirect:/";
+    @GetMapping("/last-one-month-bill")
+    public String lastOneMonthBill() {
+        return surabiRestaurantService.getLastOneDayBill();
     }
 }
