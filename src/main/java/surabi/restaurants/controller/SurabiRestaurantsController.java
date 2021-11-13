@@ -49,6 +49,6 @@ public class SurabiRestaurantsController {
 
     @GetMapping("/last-one-month-bill")
     public String lastOneMonthBill() {
-        return surabiRestaurantService.getLastOneDayBill();
+        return surabiRestaurantService.getLastOneMonthBill();
     }
 }

@@ -55,24 +55,24 @@ public class SurabiRestaurantService {
     }
 
     public String getLastOneDayBill() {
-
         Calendar today = getStartOfToday();
 
         List<Audit> audits = auditRepository.findAll();
         Date startOfToday = today.getTime();
-        return audits.stream().filter(audit -> audit.getTime().after(startOfToday))
+        return audits.stream()
+                .filter(audit -> audit.getTime().after(startOfToday))
                 .map(audit -> audit.getItems() + " Total: " + audit.getTotalPrice())
                 .collect(Collectors.toList()).toString();
     }
 
     public String getLastOneMonthBill() {
-
-        Calendar today = getStartOfToday();
-        today.add(Calendar.DATE, -30);
+        Calendar lastMonthToday = getStartOfToday();
+        lastMonthToday.add(Calendar.DATE, -30);
 
         List<Audit> audits = auditRepository.findAll();
-        Date startOfToday = today.getTime();
-        return audits.stream().filter(audit -> audit.getTime().after(startOfToday))
+        Date lastMonthTodayTime = lastMonthToday.getTime();
+        return audits.stream()
+                .filter(audit -> audit.getTime().after(lastMonthTodayTime))
                 .map(audit -> audit.getItems() + " Total: " + audit.getTotalPrice())
                 .collect(Collectors.toList()).toString();
     }
